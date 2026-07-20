@@ -165,8 +165,8 @@
             <label for="gender">Gender</label>
             <select name="gender" id="gender" required>
                 <option value="" disabled selected>Select gender...</option>
-                <option value="0">Female (0)</option>
-                <option value="1">Male (1)</option>
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
             </select>
         </div>
 
@@ -187,22 +187,31 @@
 
         <div class="form-group">
             <label for="parent_education">Parent Education Level</label>
-            <input type="number" step="any" name="parent_education" id="parent_education" placeholder="Numeric value (e.g., 0-4)" required>
+            <select name="parent_education" id="parent_education" required>
+                <option value="" disabled selected>Select level...</option>
+                <option value="High School">High School</option>
+                <option value="Some College">Some College</option>
+                <option value="Bachelors">Bachelor's Degree</option>
+                <option value="Masters">Master's Degree</option>
+                <option value="PhD">PhD</option>
+            </select>
         </div>
 
         <div class="form-group">
             <label for="internet_access">Internet Access</label>
             <select name="internet_access" id="internet_access" required>
-                <option value="1" selected>Yes (1)</option>
-                <option value="0">No (0)</option>
+                <option value="" disabled selected>Select...</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
             </select>
         </div>
 
         <div class="form-group">
             <label for="extracurricular">Extracurricular Activities</label>
             <select name="extracurricular" id="extracurricular" required>
-                <option value="1">Yes (1)</option>
-                <option value="0" selected>No (0)</option>
+                <option value="" disabled selected>Select...</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
             </select>
         </div>
 
