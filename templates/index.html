@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Success Predictor</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; }
+        label { font-weight: bold; display: block; margin-top: 15px; }
+        input { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; margin-top: 20px; background-color: #28a745; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+        button:hover { background-color: #218838; }
+        .result { margin-top: 20px; padding: 15px; background-color: #e9ecef; border-radius: 4px; text-align: center; font-weight: bold; font-size: 18px; color: #0056b3; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Student Success Predictor</h2>
+    
+    <form action="/predict" method="POST">
+        <label for="gender">Gender (e.g., 0 or 1):</label>
+        <input type="number" step="any" name="gender" required>
+
+        <label for="age">Age:</label>
+        <input type="number" step="any" name="age" required>
+
+        <label for="study_hours_per_week">Study Hours Per Week:</label>
+        <input type="number" step="any" name="study_hours_per_week" required>
+
+        <label for="attendance_rate">Attendance Rate (%):</label>
+        <input type="number" step="any" name="attendance_rate" required>
+
+        <label for="parent_education">Parent Education Level:</label>
+        <input type="number" step="any" name="parent_education" required>
+
+        <label for="internet_access">Internet Access (0 or 1):</label>
+        <input type="number" step="any" name="internet_access" required>
+
+        <label for="extracurricular">Extracurricular Activities (0 or 1):</label>
+        <input type="number" step="any" name="extracurricular" required>
+
+        <label for="previous_score">Previous Score:</label>
+        <input type="number" step="any" name="previous_score" required>
+
+        <label for="final_score">Final Score:</label>
+        <input type="number" step="any" name="final_score" required>
+
+        <button type="submit">Predict</button>
+    </form>
+
+    <!-- This displays the prediction returned by Flask -->
+    {% if prediction_text %}
+    <div class="result">
+        {{ prediction_text }}
+    </div>
+    {% endif %}
+</div>
+
+</body>
+</html>
