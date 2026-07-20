@@ -26,17 +26,42 @@ def predict():
         return render_template("index.html", prediction_text="Error: Model not loaded properly on the server.")
 
     try:
-        # Extract features from the HTML form and convert to floats
+        # 1. Define mappings to convert words back to numbers
+        # IMPORTANT: Ensure these numbers match how you originally trained your model!
+        gender_map = {"Female": 0.0, "Male": 1.0}
+        yes_no_map = {"No": 0.0, "Yes": 1.0}
+        education_map = {
+            "High School": 0.0,
+            "Some College": 1.0,
+            "Bachelors": 2.0,
+            "Masters": 3.0,
+            "PhD": 4.0
+        }
+
+        # 2. Extract and map string inputs from the dropdowns
+        gender_val = gender_map[request.form["gender"]]
+        internet_val = yes_no_map[request.form["internet_access"]]
+        extra_val = yes_no_map[request.form["extracurricular"]]
+        edu_val = education_map[request.form["parent_education"]]
+
+        # 3. Extract the standard numerical inputs
+        age_val = float(request.form["age"])
+        study_hours_val = float(request.form["study_hours_per_week"])
+        attendance_val = float(request.form["attendance_rate"])
+        prev_score_val = float(request.form["previous_score"])
+        final_score_val = float(request.form["final_score"])
+
+        # 4. Combine into features list in the EXACT original order
         features = [
-            float(request.form["gender"]),
-            float(request.form["age"]),
-            float(request.form["study_hours_per_week"]),
-            float(request.form["attendance_rate"]),
-            float(request.form["parent_education"]),
-            float(request.form["internet_access"]),
-            float(request.form["extracurricular"]),
-            float(request.form["previous_score"]),
-            float(request.form["final_score"])
+            gender_val,
+            age_val,
+            study_hours_val,
+            attendance_val,
+            edu_val,
+            internet_val,
+            extra_val,
+            prev_score_val,
+            final_score_val
         ]
         
         # Convert to a 2D array for scikit-learn prediction
@@ -50,6 +75,9 @@ def predict():
         
         return render_template("index.html", prediction_text=f"Prediction: The student will {result_text}!")
 
+    except KeyError as e:
+        # Catches errors if a dropdown was left blank
+        return render_template("index.html", prediction_text=f"Error: Please ensure all dropdowns are selected. Missing: {str(e)}")
     except Exception as e:
         return render_template("index.html", prediction_text=f"Error processing input: {str(e)}")
 
