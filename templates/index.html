@@ -1,240 +1,215 @@
+{%- macro seg(name, label, options, current) -%}
+<div class="field">
+  <span class="label" id="l-{{ name }}">{{ label }}</span>
+  <div class="seg" role="radiogroup" aria-labelledby="l-{{ name }}">
+    {% for o in options %}
+    <label><input type="radio" name="{{ name }}" value="{{ o }}" {{ 'checked' if current == o }} {{ 'required' if loop.first }}><span>{{ o }}</span></label>
+    {% endfor %}
+  </div>
+</div>
+{%- endmacro -%}
+
+{%- macro num(name, label, placeholder, current, suffix='', hi='') -%}
+<div class="field">
+  <label class="label" for="{{ name }}">{{ label }}</label>
+  <div class="input-wrap">
+    <input type="number" step="any" name="{{ name }}" id="{{ name }}" placeholder="{{ placeholder }}" value="{{ current or '' }}" min="0" {% if hi %}max="{{ hi }}"{% endif %} required>
+    {% if suffix %}<span class="suffix">{{ suffix }}</span>{% endif %}
+  </div>
+</div>
+{%- endmacro -%}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Success Predictor</title>
-    <!-- Import a clean, modern font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --bg-gradient: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%);
-            --success-bg: #dcfce7;
-            --success-text: #166534;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student success predictor</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F4F6FA; --surface: #fff; --ink: #18213A; --muted: #66708A; --line: #E3E7F0;
+  --accent: #3B5BDB; --accent-dark: #2F49B5; --track: #EEF1F8;
+  --good: #1F8A5B; --good-tint: #E6F4EC; --warn: #B7791F; --warn-tint: #FBF1DD; --bad: #C24A3D; --bad-tint: #FBEAE8;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; color: var(--ink); font-family: 'DM Sans', system-ui, sans-serif;
+  background: radial-gradient(900px 420px at 10% -5%, #E4EAFB 0%, rgba(244,246,250,0) 70%), var(--bg);
+  min-height: 100vh;
+}
+.page { display: grid; grid-template-columns: 5fr 7fr; gap: 3.5rem; max-width: 1080px; margin: 0 auto; padding: 3.5rem 1.5rem; align-items: start; }
+.side { position: sticky; top: 3rem; }
+h1 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 2.5rem; line-height: 1.1; letter-spacing: -0.02em; margin: 0; }
+.lead { color: var(--muted); font-size: 1.05rem; line-height: 1.55; margin: .9rem 0 2rem; max-width: 40ch; }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-gradient);
-            min-height: 100vh;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            box-sizing: border-box;
-        }
+/* Result */
+.result { border-radius: 16px; padding: 1.5rem; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 8px 30px rgba(24,33,58,.06); }
+.result.empty { background: transparent; border: 1.5px dashed #C9D1E3; box-shadow: none; color: var(--muted); }
+.result.empty b { display: block; color: var(--ink); margin-bottom: .2rem; }
+.result.show { animation: rise .35s ease-out; }
+.result.pass { background: var(--good-tint); border-color: #BFE3CF; --tone: var(--good); }
+.result.fail { background: var(--warn-tint); border-color: #EBD3A1; --tone: var(--warn); }
+.result.error { background: var(--bad-tint); border-color: #F0C4BF; --tone: var(--bad); }
+.result-row { display: flex; gap: 1rem; align-items: flex-start; }
+.badge { width: 44px; height: 44px; border-radius: 50%; background: var(--tone); color: #fff; display: grid; place-items: center; flex: none; }
+.badge svg { width: 22px; height: 22px; }
+.verdict { font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 600; margin: 0; color: var(--tone); }
+.result p { margin: .35rem 0 0; color: var(--ink); line-height: 1.5; font-size: .95rem; }
+.result .fine { color: var(--muted); font-size: .82rem; margin-top: .8rem; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
-        .container {
-            background: #ffffff;
-            max-width: 650px;
-            width: 100%;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-        }
+/* Form */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 1.75rem; box-shadow: 0 8px 30px rgba(24,33,58,.06); }
+.progress { display: flex; align-items: center; gap: .8rem; margin-bottom: 1.5rem; font-size: .85rem; color: var(--muted); }
+.track { flex: 1; height: 6px; border-radius: 99px; background: var(--track); overflow: hidden; }
+#bar { height: 100%; width: 0; background: var(--accent); border-radius: 99px; transition: width .25s ease; }
+.section + .section { margin-top: 1.75rem; }
+h2 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 1.2rem; margin: 0 0 .9rem; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.25rem; }
+.wide { grid-column: 1 / -1; }
+.field { display: flex; flex-direction: column; gap: .4rem; min-width: 0; }
+.label { font-size: .9rem; font-weight: 500; }
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+.input-wrap { position: relative; }
+input[type=number], select {
+  width: 100%; height: 46px; padding: 0 .9rem; font: inherit; color: var(--ink);
+  background: #F8FAFD; border: 1px solid var(--line); border-radius: 10px; transition: border-color .15s, box-shadow .15s, background .15s;
+}
+input[type=number] { padding-right: 3.6rem; }
+input::placeholder { color: #9AA3B8; }
+input:focus, select:focus { outline: none; background: #fff; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,91,219,.16); }
+.suffix { position: absolute; right: .9rem; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: .85rem; pointer-events: none; }
 
-        .header h2 {
-            margin: 0;
-            color: var(--text-main);
-            font-size: 26px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
+.seg { display: flex; gap: 4px; padding: 4px; background: var(--track); border-radius: 12px; height: 46px; }
+.seg label { flex: 1; position: relative; }
+.seg input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.seg span { display: grid; place-items: center; height: 100%; border-radius: 8px; color: var(--muted); font-weight: 500; font-size: .92rem; cursor: pointer; transition: background .15s, color .15s; }
+.seg input:checked + span { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(24,33,58,.14); }
+.seg input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 1px; }
 
-        .header p {
-            color: var(--text-muted);
-            margin-top: 8px;
-            font-size: 15px;
-        }
+button {
+  width: 100%; height: 52px; margin-top: 2rem; border: 0; border-radius: 12px; cursor: pointer;
+  background: var(--accent); color: #fff; font: 600 1rem 'DM Sans', sans-serif; transition: background .15s, transform .1s;
+}
+button:hover { background: var(--accent-dark); }
+button:active { transform: scale(.985); }
+button:focus-visible { outline: 3px solid rgba(59,91,219,.35); outline-offset: 2px; }
 
-        /* 2-Column Grid Layout */
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Make the submit button span both columns */
-        .full-width {
-            grid-column: 1 / -1;
-        }
-
-        label {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-main);
-            margin-bottom: 8px;
-        }
-
-        input, select {
-            padding: 12px 16px;
-            font-size: 15px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background-color: #f8fafc;
-            color: var(--text-main);
-            transition: all 0.2s ease;
-            font-family: inherit;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            background-color: #ffffff;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
-        }
-
-        input::placeholder {
-            color: #94a3b8;
-        }
-
-        button {
-            background-color: var(--primary);
-            color: white;
-            font-weight: 600;
-            font-size: 16px;
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.1s ease;
-            margin-top: 10px;
-        }
-
-        button:hover {
-            background-color: var(--primary-hover);
-        }
-
-        button:active {
-            transform: scale(0.98);
-        }
-
-        .result {
-            margin-top: 25px;
-            padding: 16px;
-            background-color: var(--success-bg);
-            color: var(--success-text);
-            border-radius: 8px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 16px;
-            border: 1px solid #bbf7d0;
-            animation: fadeIn 0.4s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Responsive: Stack columns on mobile */
-        @media (max-width: 600px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+@media (max-width: 900px) {
+  .page { grid-template-columns: 1fr; gap: 1.75rem; padding: 2rem 1.1rem; }
+  .side { position: static; }
+  .result.empty { display: none; }
+  .lead { margin-bottom: 1.25rem; }
+}
+@media (max-width: 520px) { .grid { grid-template-columns: 1fr; } .card { padding: 1.25rem; } h1 { font-size: 2.1rem; } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
 </head>
 <body>
+<main class="page">
 
-<div class="container">
-    <div class="header">
-        <h2>Student Success Predictor</h2>
-        <p>Enter the student's metrics below to generate a prediction.</p>
-    </div>
-    
-    <form action="/predict" method="POST" class="form-grid">
-        
-        <div class="form-group">
-            <label for="gender">Gender</label>
-            <select name="gender" id="gender" required>
-                <option value="" disabled selected>Select gender...</option>
-                <option value="Female">Female</option>
-                <option value="Male">Male</option>
-            </select>
+  <aside class="side">
+    <h1>Student success predictor</h1>
+    <p class="lead">Answer a few questions about your study habits and scores to see whether you're likely to pass.</p>
+
+    {% set msg = prediction_text or '' %}
+    {% if msg %}
+      {% set state = 'error' if msg.startswith('Error') else ('pass' if msg.endswith('Pass!') else 'fail') %}
+      <section class="result show {{ state }}" role="status" aria-live="polite">
+        <div class="result-row">
+          <div class="badge">
+            {% if state == 'pass' %}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+            {% else %}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 6v7M12 17.5v.5"/></svg>
+            {% endif %}
+          </div>
+          <div>
+            {% if state == 'pass' %}
+              <h3 class="verdict">Likely to pass</h3>
+              <p>Your details look like those of students who pass. Keep your current routine going.</p>
+            {% elif state == 'fail' %}
+              <h3 class="verdict">At risk of not passing</h3>
+              <p>More study time and steady class attendance are the easiest places to start.</p>
+            {% else %}
+              <h3 class="verdict">Something went wrong</h3>
+              <p>{{ msg|replace('Error: ', '', 1) }}</p>
+            {% endif %}
+            {% if state != 'error' %}<p class="fine">This is an estimate based on the details you entered, not a final result.</p>{% endif %}
+          </div>
         </div>
-
-        <div class="form-group">
-            <label for="age">Age</label>
-            <input type="number" step="any" name="age" id="age" placeholder="e.g., 18" required>
-        </div>
-
-        <div class="form-group">
-            <label for="study_hours_per_week">Study Hours (Weekly)</label>
-            <input type="number" step="any" name="study_hours_per_week" id="study_hours_per_week" placeholder="e.g., 15" required>
-        </div>
-
-        <div class="form-group">
-            <label for="attendance_rate">Attendance Rate (%)</label>
-            <input type="number" step="any" name="attendance_rate" id="attendance_rate" placeholder="0 - 100" min="0" max="100" required>
-        </div>
-
-        <div class="form-group">
-            <label for="parent_education">Parent Education Level</label>
-            <select name="parent_education" id="parent_education" required>
-                <option value="" disabled selected>Select level...</option>
-                <option value="High School">High School</option>
-                <option value="Some College">Some College</option>
-                <option value="Bachelors">Bachelor's Degree</option>
-                <option value="Masters">Master's Degree</option>
-                <option value="PhD">PhD</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="internet_access">Internet Access</label>
-            <select name="internet_access" id="internet_access" required>
-                <option value="" disabled selected>Select...</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="extracurricular">Extracurricular Activities</label>
-            <select name="extracurricular" id="extracurricular" required>
-                <option value="" disabled selected>Select...</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="previous_score">Previous Score</label>
-            <input type="number" step="any" name="previous_score" id="previous_score" placeholder="e.g., 85" required>
-        </div>
-
-        <div class="form-group full-width">
-            <label for="final_score">Final Score</label>
-            <input type="number" step="any" name="final_score" id="final_score" placeholder="e.g., 90" required>
-        </div>
-
-        <button type="submit" class="full-width">Generate Prediction</button>
-    </form>
-
-    <!-- Displays the prediction returned by Flask -->
-    {% if prediction_text %}
-    <div class="result">
-        {{ prediction_text }}
-    </div>
+      </section>
+    {% else %}
+      <section class="result empty"><b>Your result will appear here</b>Fill in the form, then choose Predict result.</section>
     {% endif %}
-</div>
+  </aside>
 
+  <form action="/predict" method="POST" id="form" class="card">
+    <div class="progress">
+      <div class="track"><div id="bar"></div></div>
+      <span id="count">0 of 9 answered</span>
+    </div>
+
+    <div class="section">
+      <h2>About you</h2>
+      <div class="grid">
+        {{ seg('gender', 'Gender', ['Female', 'Male'], request.form.get('gender')) }}
+        {{ num('age', 'Age', 'e.g. 18', request.form.get('age'), 'yrs') }}
+        <div class="field wide">
+          <label class="label" for="parent_education">Parent's education</label>
+          <select name="parent_education" id="parent_education" required>
+            <option value="" disabled {{ 'selected' if not request.form.get('parent_education') }}>Select a level</option>
+            {% for v, t in [('High School', 'High school'), ('Some College', 'Some college'), ('Bachelors', "Bachelor's degree"), ('Masters', "Master's degree"), ('PhD', 'PhD')] %}
+            <option value="{{ v }}" {{ 'selected' if request.form.get('parent_education') == v }}>{{ t }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Study habits</h2>
+      <div class="grid">
+        {{ num('study_hours_per_week', 'Study hours per week', 'e.g. 15', request.form.get('study_hours_per_week'), 'hrs') }}
+        {{ num('attendance_rate', 'Class attendance', '0 to 100', request.form.get('attendance_rate'), '%', 100) }}
+        {{ seg('internet_access', 'Internet access at home', ['Yes', 'No'], request.form.get('internet_access')) }}
+        {{ seg('extracurricular', 'Extracurricular activities', ['Yes', 'No'], request.form.get('extracurricular')) }}
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Scores</h2>
+      <div class="grid">
+        {{ num('previous_score', 'Previous score', 'e.g. 85', request.form.get('previous_score'), '/ 100', 100) }}
+        {{ num('final_score', 'Final score', 'e.g. 90', request.form.get('final_score'), '/ 100', 100) }}
+      </div>
+    </div>
+
+    <button type="submit" id="submit">Predict result</button>
+  </form>
+
+</main>
+
+<script>
+  const form = document.getElementById('form');
+  const bar = document.getElementById('bar');
+  const count = document.getElementById('count');
+
+  function update() {
+    const names = new Set([...form.elements].filter(e => e.name).map(e => e.name));
+    let done = 0;
+    names.forEach(n => {
+      const els = [...form.querySelectorAll(`[name="${n}"]`)];
+      const filled = els[0].type === 'radio' ? els.some(e => e.checked) : els[0].value !== '';
+      if (filled) done++;
+    });
+    bar.style.width = (done / names.size * 100) + '%';
+    count.textContent = `${done} of ${names.size} answered`;
+  }
+  form.addEventListener('input', update);
+  form.addEventListener('submit', () => { document.getElementById('submit').textContent = 'Predicting…'; });
+  update();
+</script>
 </body>
 </html>
