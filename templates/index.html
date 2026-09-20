@@ -111,7 +111,7 @@ button:focus-visible { outline: 3px solid rgba(59,91,219,.35); outline-offset: 2
 
   <aside class="side">
     <h1>Student success predictor</h1>
-    <p class="lead">Answer a few questions about your study habits and scores to see whether you're likely to pass.</p>
+    <p class="lead">Answer a few questions about your study habits and scores to see whether you're likely to succeed.
 
     {% set msg = prediction_text or '' %}
     {% if msg %}
@@ -127,10 +127,10 @@ button:focus-visible { outline: 3px solid rgba(59,91,219,.35); outline-offset: 2
           </div>
           <div>
             {% if state == 'pass' %}
-              <h3 class="verdict">Likely to pass</h3>
+              <h3 class="verdict">Likely to succeed</h3>
               <p>Your details look like those of students who pass. Keep your current routine going.</p>
             {% elif state == 'fail' %}
-              <h3 class="verdict">At risk of not passing</h3>
+              <h3 class="verdict">At risk of failure</h3>
               <p>More study time and steady class attendance are the easiest places to start.</p>
             {% else %}
               <h3 class="verdict">Something went wrong</h3>
